@@ -9,7 +9,12 @@
 
 ## 项目概述
 
-拍词学单词 — Kotlin + Jetpack Compose 安卓应用。拍照 OCR → DeepSeek 翻译 → TTS 朗读 → 生词本 → 间隔复习。
+拍词学单词 — Kotlin + Jetpack Compose 安卓应用。拍照 PaddleOCR(PP-OCRv5/ncnn) → DeepSeek 翻译 → TTS 朗读 → 生词本 → 间隔复习。
+
+## OCR 引擎
+
+使用 PaddleOCR PP-OCRv5 移动端模型，通过 ncnn 推理框架运行，封装库：[equationl/paddleocr4android](https://github.com/equationl/paddleocr4android) (JitPack)。
+模型文件约 10MB，放在 `app/src/main/assets/` 下，首次运行时从 assets 加载。
 
 ## 构建
 
