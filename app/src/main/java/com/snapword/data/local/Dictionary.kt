@@ -10,43 +10,42 @@ import javax.inject.Singleton
 
 @Singleton
 class Dictionary @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val wordListManager: WordListManager
 ) {
-    private val wordMap: MutableMap<String, String> = HashMap()
+    private val builtinMap: MutableMap<String, String> = HashMap()
 
     init {
-        loadDictionary()
+        loadBuiltin()
     }
 
-    private fun loadDictionary() {
+    private fun loadBuiltin() {
         try {
-            val inputStream = context.assets.open("dictionary.json")
-            val reader = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
+            val stream = context.assets.open("dictionary.json")
+            val reader = BufferedReader(InputStreamReader(stream, "UTF-8"))
             val json = reader.readText()
             reader.close()
-            inputStream.close()
+            stream.close()
 
             val arr = JSONArray(json)
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
-                val word = obj.getString("w")
-                val translation = obj.getString("t")
-                wordMap[word] = translation
+                builtinMap[obj.getString("w")] = obj.getString("t")
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
+    /** Lookup: checks downloaded lists first, then built-in */
     fun lookup(word: String): String? {
-        return wordMap[word.lowercase().trim()]
+        val key = word.lowercase().trim()
+        // Check downloaded lists
+        val downloaded = wordListManager.loadDownloadedWords()
+        downloaded[key]?.let { return it }
+        // Fall back to built-in
+        return builtinMap[key]
     }
 
-    fun lookupAll(words: List<String>): List<Pair<String, String>> {
-        return words.mapNotNull { word ->
-            lookup(word)?.let { word to it }
-        }
-    }
-
-    val size: Int get() = wordMap.size
+    val builtinSize: Int get() = builtinMap.size
 }

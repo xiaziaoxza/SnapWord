@@ -32,7 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    onOpenWordList: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -107,6 +108,19 @@ fun SettingsScreen(
                         )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text("词库", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = onOpenWordList,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("词库管理 · 下载更多词汇")
             }
 
             Spacer(modifier = Modifier.height(32.dp))

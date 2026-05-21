@@ -28,6 +28,7 @@ import com.snapword.ui.result.ResultScreen
 import com.snapword.ui.review.ReviewScreen
 import com.snapword.ui.settings.SettingsScreen
 import com.snapword.ui.vocab.VocabScreen
+import com.snapword.ui.wordlist.WordListScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -38,6 +39,7 @@ object Routes {
     const val VOCAB = "vocab"
     const val REVIEW = "review"
     const val SETTINGS = "settings"
+    const val WORDLIST = "wordlist"
 
     fun result(words: List<String>): String {
         val encoded = URLEncoder.encode(words.joinToString(","), "UTF-8")
@@ -133,7 +135,15 @@ fun NavGraph() {
             }
 
             composable(Routes.SETTINGS) {
-                SettingsScreen()
+                SettingsScreen(
+                    onOpenWordList = { navController.navigate(Routes.WORDLIST) }
+                )
+            }
+
+            composable(Routes.WORDLIST) {
+                WordListScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

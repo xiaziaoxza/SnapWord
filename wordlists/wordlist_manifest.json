@@ -1,0 +1,62 @@
+[
+  {
+    "id": "gaokao",
+    "name": "高考词汇",
+    "description": "中高考英语核心词汇 (内置)",
+    "wordCount": 4728,
+    "file": null,
+    "size": 385498,
+    "url": null,
+    "builtin": true
+  },
+  {
+    "id": "cet4",
+    "name": "四级词汇",
+    "description": "大学英语四级考试 (CET-4)",
+    "wordCount": 2239,
+    "file": "cet4.json",
+    "size": 185210,
+    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/cet4.json",
+    "builtin": false
+  },
+  {
+    "id": "cet6",
+    "name": "六级词汇",
+    "description": "大学英语六级考试 (CET-6)",
+    "wordCount": 5976,
+    "file": "cet6.json",
+    "size": 488779,
+    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/cet6.json",
+    "builtin": false
+  },
+  {
+    "id": "kaoyan",
+    "name": "考研词汇",
+    "description": "全国硕士研究生入学考试",
+    "wordCount": 5585,
+    "file": "kaoyan.json",
+    "size": 458732,
+    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/kaoyan.json",
+    "builtin": false
+  },
+  {
+    "id": "toefl",
+    "name": "托福词汇",
+    "description": "TOEFL 托福考试核心词汇",
+    "wordCount": 5327,
+    "file": "toefl.json",
+    "size": 376412,
+    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/toefl.json",
+    "builtin": false
+  },
+  {
+    "id": "ielts",
+    "name": "雅思词汇",
+    "description": "IELTS 雅思考试核心词汇",
+    "wordCount": 3716,
+    "file": "ielts.json",
+    "size": 284257,
+    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/ielts.json",
+    "builtin": false
+  }
+]
