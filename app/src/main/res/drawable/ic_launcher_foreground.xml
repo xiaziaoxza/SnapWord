@@ -5,48 +5,74 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Camera lens outer ring -->
+    <!-- Lens outer ring (bowl of 'a') -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:pathData="M30,52A22,22 0,1 1,74 52A22,22 0,1 1,30 52Z" />
+
+    <!-- Lens inner ring (aperture edge) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:pathData="M37,52A15,15 0,1 1,67 52A15,15 0,1 1,37 52Z" />
+
+    <!-- Aperture opening (center) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,18A36,36 0,1 1,18 54A36,36 0,1 1,54 18ZM54,22A32,32 0,1 0,86 54A32,32 0,1 0,54 22Z" />
-
-    <!-- Lens ring highlight -->
-    <path
-        android:fillColor="#90CAF9"
         android:fillAlpha="0.3"
-        android:pathData="M38,22A32,32 0,0 0,22 54A32,32 0,0 0,55 86Q60,86 64,84A36,36 0,0 1,38 22Z" />
+        android:pathData="M44,52m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
 
-    <!-- Aperture blade 1 (top-right) -->
+    <!-- Aperture blade 1 -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.4"
-        android:pathData="M54,22L72,40L62,46L50,28Z" />
+        android:pathData="M44,38L50,52L42,46Z" />
 
-    <!-- Aperture blade 2 (bottom-right) -->
+    <!-- Aperture blade 2 -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.4"
-        android:pathData="M86,54L68,62L62,50L78,40Z" />
+        android:pathData="M66,46L52,52L60,38Z" />
 
-    <!-- Aperture blade 3 (bottom-left) -->
+    <!-- Aperture blade 3 -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.4"
-        android:pathData="M54,86L36,68L46,62L58,78Z" />
+        android:pathData="M60,66L52,52L66,58Z" />
 
-    <!-- Aperture blade 4 (top-left) -->
+    <!-- Aperture blade 4 -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.4"
-        android:pathData="M22,54L40,46L46,58L30,68Z" />
+        android:pathData="M42,66L52,52L38,58Z" />
 
-    <!-- Inner lens circle -->
+    <!-- Stem of letter 'a' (thick, geometric, rises from lens right side) -->
     <path
-        android:fillColor="#1565C0"
-        android:pathData="M54,30A24,24 0,1 1,30 54A24,24 0,1 1,54 30ZM54,34A20,20 0,1 0,74 54A20,20 0,1 0,54 34Z" />
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M74,48Q78,36 74,24Q72,18 68,16" />
 
-    <!-- Letter "a" in center - lowercase, modern geometric style -->
+    <!-- Top crossbar of 'a' -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M60,20Q66,18 72,22" />
+
+    <!-- Flash element (top-left of lens, like a camera flash) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M44,68L48,56H60L64,68H70L58,38H50L38,68H44ZM50,52L54,40L58,52H50Z" />
+        android:pathData="M22,28L26,24L30,30L24,32Z" />
+
+    <!-- Viewfinder accent (small camera hint at top-right) -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M80,24L86,24Q88,24 88,26L88,32" />
+
 </vector>
