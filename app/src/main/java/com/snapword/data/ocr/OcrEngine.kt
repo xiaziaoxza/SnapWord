@@ -52,9 +52,12 @@ class OcrEngine @Inject constructor(
 
         val words = mutableListOf<String>()
 
+        // Symbols that should be treated as word separators (checkboxes, bullets, etc.)
+        val tokenSep = Regex("[\\s,;:()\\[\\]{}■□●•·◦▪▫○◯⭕☐☑☒✓✔✕✗✘☐☑☒◻◼◽◾▢▣▤▥▦▧▨▩⬜⬛❑❒]+")
+
         for (line in result.textLines) {
             val raw = line.text.trim()
-            val tokens = raw.split(Regex("[\\s,;:()\\[\\]{}]+"))
+            val tokens = raw.split(tokenSep)
 
             for (token in tokens) {
                 val corrected = correctCheckboxArtifact(token)
@@ -98,8 +101,11 @@ class OcrEngine @Inject constructor(
     private fun isValidWord(text: String): Boolean {
         if (text.any { it in phoneticChars }) return false
 
+        // Reject tokens that have no letters at all (pure symbols like □)
+        if (text.none { it.isLetter() }) return false
+
         var cleaned = text.trim { c ->
-            !c.isLetter() || c in "□■●•·◦▪▫○◯○⭕"
+            !c.isLetter() || c in "□■●•·◦▪▫○◯⭕☐☑☒✓✔✕✗✘◻◼◽◾▢▣▤▥▦▧▨▩⬜⬛❑❒"
         }
         cleaned = cleaned.trimEnd { c -> !c.isLetter() }
 
