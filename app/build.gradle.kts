@@ -64,7 +64,7 @@ dependencies {
 
     // ML Kit OCR (English)
     implementation("com.google.mlkit:text-recognition:16.0.1")
-    implementation("com.google.android.gms:play-services-tasks:18.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
     // Room
     val roomVersion = "2.6.1"
