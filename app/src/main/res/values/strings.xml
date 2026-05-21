@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">拍词学单词</string>
+    <string name="btn_capture">拍照识别</string>
+    <string name="btn_pick_image">从相册选择</string>
+    <string name="btn_add_to_vocab">加入生词本</string>
+    <string name="btn_review">开始复习</string>
+    <string name="btn_share">分享选中的单词</string>
+    <string name="btn_speak">🔊 朗读</string>
+    <string name="label_translation">翻译中…</string>
+    <string name="label_ocr_scanning">正在识别图片中的单词…</string>
+    <string name="label_no_words">没有识别到单词</string>
+    <string name="label_vocab_empty">生词本还没有单词\n拍照添加一些吧</string>
+    <string name="label_mastered">已掌握</string>
+    <string name="label_remembered">记住了</string>
+    <string name="label_fuzzy">模糊</string>
+    <string name="label_forgot">没记住</string>
+    <string name="label_api_key">DeepSeek API Key</string>
+    <string name="label_speech_rate">TTS 语速</string>
+    <string name="label_language">识别语言</string>
+    <string name="hint_api_key">输入你的 DeepSeek API Key</string>
+    <string name="default_api_key">sk-default-placeholder</string>
+    <string name="tab_vocab">生词本</string>
+    <string name="tab_review">复习</string>
+    <string name="tab_settings">设置</string>
+    <string name="swipe_delete">删除</string>
+    <string name="swipe_master">掌握</string>
+</resources>
