@@ -1,6 +1,7 @@
 package com.snapword.data.ocr
 
 import android.graphics.Bitmap
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -14,11 +15,12 @@ class OcrEngine @Inject constructor() {
 
     suspend fun recognize(bitmap: Bitmap): List<String> {
         val image = InputImage.fromBitmap(bitmap, 0)
-        val result = recognizer.process(image)
+        val result = Tasks.await(recognizer.process(image))
+
         val words = mutableListOf<String>()
-        for (block in result.getTextBlocks()) {
-            for (line in block.getLines()) {
-                val text = line.getText().trim()
+        for (block in result.textBlocks) {
+            for (line in block.lines) {
+                val text = line.text.trim()
                 if (text.length in 2..20 && text.matches(Regex("^[a-zA-Z]+$"))) {
                     words.add(text)
                 }
