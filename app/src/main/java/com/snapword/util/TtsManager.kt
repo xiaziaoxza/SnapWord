@@ -13,16 +13,24 @@ class TtsManager @Inject constructor(
 ) {
     private var tts: TextToSpeech? = null
     private var speechRate = 1.0f
+    private var ready = false
 
-    fun init(callback: (Boolean) -> Unit = {}) {
+    init {
         tts = TextToSpeech(context) { status ->
-            callback(status == TextToSpeech.SUCCESS)
+            ready = (status == TextToSpeech.SUCCESS)
         }
         tts?.language = Locale.US
     }
 
     fun speak(text: String) {
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "snapword_tts_$text")
+        val t = tts ?: return
+        // Guard: TTS must be initialized before speaking
+        if (!ready) {
+            // Retry language setting (some engines need it after init)
+            t.language = Locale.US
+        }
+        t.setSpeechRate(speechRate)
+        t.speak(text, TextToSpeech.QUEUE_FLUSH, null, "snapword_tts_$text")
     }
 
     fun setRate(rate: Float) {
