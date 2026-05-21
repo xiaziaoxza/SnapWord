@@ -9,6 +9,9 @@ import com.equationl.ncnnandroidppocr.bean.ModelType
 import com.snapword.data.local.Dictionary
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,8 +31,16 @@ class OcrEngine @Inject constructor(
         'ʃ', 'ʒ', 'ŋ', 'ɡ', 'ɑ', 'ɛ', 'ː', 'ˈ', 'ˌ', '(', ')'
     )
 
+    // Regex to find all letter-sequences (handles apostrophe/hyphen within)
+    // This replaces symbol-enumeration — □have → "have", .test → "test", 中文word → "word"
+    private val wordPattern = Regex("[a-zA-Z]+(?:['\\-][a-zA-Z]+)*")
+
+    // Characters OCR misreads □ checkbox as (still checked as fallback for merged tokens)
     private val checkboxMisreads = setOf('O', 'D', 'C', 'Q', '0')
     private val checkboxMisreadsLower = setOf('o', 'd', 'c', 'q', '0')
+
+    // ── Grid scan thresholds ──
+    private val gridMinWords = 5  // If full-image scan finds < 5 words, try grid
 
     private suspend fun ensureInitialized(): Boolean {
         if (initialized) return true
@@ -37,7 +48,7 @@ class OcrEngine @Inject constructor(
             ocr.initModelFromAssert(
                 context.assets,
                 ModelType.Mobile,
-                ImageSize.Size640,
+                ImageSize.Size1080,
                 Device.CPU
             ).also { initialized = it }
         }
@@ -46,20 +57,107 @@ class OcrEngine @Inject constructor(
     suspend fun recognize(bitmap: Bitmap): List<String> {
         if (!ensureInitialized()) return emptyList()
 
-        val result = withContext(Dispatchers.Default) {
-            ocr.detectBitmap(bitmap)
-        } ?: return emptyList()
+        // ── Step 1: Full-image scan with upscaling ──
+        val scaled = scaleUpForOCR(bitmap)
+        val fullWords = withContext(Dispatchers.Default) {
+            extractWords(ocr.detectBitmap(scaled))
+        }
+
+        // ── Step 2: If few words found, try grid scan for dense/diverse layouts ──
+        if (fullWords.size < gridMinWords) {
+            val gridWords = recognizeGrid(scaled)
+            return mergeResults(fullWords, gridWords)
+        }
+
+        return fullWords
+    }
+
+    // ============================================================
+    // 图片预处理：放大低分辨率图片提升小字识别率
+    // ============================================================
+
+    private fun scaleUpForOCR(src: Bitmap): Bitmap {
+        val minDim = 1200
+        val w = src.width
+        val h = src.height
+
+        // If already large enough, return as-is (but ensure ARGB_8888 for ncnn)
+        if (w >= minDim && h >= minDim) {
+            return if (src.config == Bitmap.Config.ARGB_8888) src
+            else src.copy(Bitmap.Config.ARGB_8888, false)
+        }
+
+        // Scale up so shorter side reaches minDim
+        val scale = if (w < h) minDim.toFloat() / w else minDim.toFloat() / h
+        val newW = (w * scale).toInt()
+        val newH = (h * scale).toInt()
+
+        val scaled = Bitmap.createScaledBitmap(src, newW, newH, true)
+        // Clean up if we created a new bitmap
+        if (scaled !== src && src.config != Bitmap.Config.ARGB_8888) {
+            // src will be garbage collected, no explicit recycle needed
+        }
+        return scaled
+    }
+
+    // ============================================================
+    // 分块识别：将图片分割成网格，多线程并行识别
+    // ============================================================
+
+    private suspend fun recognizeGrid(bitmap: Bitmap): List<String> = coroutineScope {
+        val w = bitmap.width
+        val h = bitmap.height
+
+        // Determine grid: 1 row for narrow images, 2 rows for tall ones
+        val cols = if (w > 1200) 2 else 1
+        val rows = if (h > 1600) 2 else 1
+
+        if (cols == 1 && rows == 1) return@coroutineScope emptyList()
+
+        val tileW = w / cols
+        val tileH = h / rows
+        val overlap = 0.15f  // 15% overlap to avoid cutting words
+
+        val tiles = mutableListOf<Bitmap>()
+        for (r in 0 until rows) {
+            for (c in 0 until cols) {
+                val x = (c * tileW - if (c > 0) tileW * overlap else 0).toInt().coerceAtLeast(0)
+                val y = (r * tileH - if (r > 0) tileH * overlap else 0).toInt().coerceAtLeast(0)
+                val rw = ((tileW * (1 + overlap * 2)).toInt()).coerceAtMost(w - x)
+                val rh = ((tileH * (1 + overlap * 2)).toInt()).coerceAtMost(h - y)
+                if (rw > 100 && rh > 100) {
+                    tiles.add(Bitmap.createBitmap(bitmap, x, y, rw, rh))
+                }
+            }
+        }
+
+        // Process all tiles in parallel
+        val results = tiles.map { tile ->
+            async(Dispatchers.Default) {
+                extractWords(ocr.detectBitmap(tile))
+            }
+        }.awaitAll()
+
+        results.flatten()
+    }
+
+    // ============================================================
+    // 核心：从 OcrResult 提取单词
+    // ============================================================
+
+    private fun extractWords(result: com.equationl.ncnnandroidppocr.bean.OcrResult?): List<String> {
+        if (result == null) return emptyList()
 
         val words = mutableListOf<String>()
 
-        // Symbols that should be treated as word separators (checkboxes, bullets, etc.)
-        val tokenSep = Regex("[\\s,;:()\\[\\]{}■□●•·◦▪▫○◯⭕☐☑☒✓✔✕✗✘☐☑☒◻◼◽◾▢▣▤▥▦▧▨▩⬜⬛❑❒]+")
-
         for (line in result.textLines) {
-            val raw = line.text.trim()
-            val tokens = raw.split(tokenSep)
+            val raw = line.text
 
-            for (token in tokens) {
+            // Find all letter-sequences using regex — this naturally strips
+            // □, ., Chinese chars, numbers, symbols from around words
+            val matches = wordPattern.findAll(raw)
+            for (match in matches) {
+                val token = match.value
                 val corrected = correctCheckboxArtifact(token)
                 if (isValidWord(corrected)) {
                     words.add(corrected)
@@ -67,22 +165,30 @@ class OcrEngine @Inject constructor(
             }
         }
 
-        // Remove duplicates, preserving order
-        val seen = mutableSetOf<String>()
-        val filtered = mutableListOf<String>()
-        for (word in words) {
-            if (seen.add(word.lowercase())) {
-                filtered.add(word)
-            }
-        }
-        return filtered.take(50)
+        return words
     }
 
-    /**
-     * When OCR misreads □ checkbox as a letter (O/D/C/Q/0),
-     * check the dictionary: if the word isn't found but stripping
-     * the first character yields a known word, use the corrected version.
-     */
+    // ============================================================
+    // 结果合并去重
+    // ============================================================
+
+    private fun mergeResults(vararg lists: List<String>): List<String> {
+        val seen = mutableSetOf<String>()
+        val merged = mutableListOf<String>()
+        for (list in lists) {
+            for (word in list) {
+                if (seen.add(word.lowercase())) {
+                    merged.add(word)
+                }
+            }
+        }
+        return merged.take(50)
+    }
+
+    // ============================================================
+    // 复选框误读纠正（兜底）
+    // ============================================================
+
     private fun correctCheckboxArtifact(word: String): String {
         if (word.length < 3) return word
         if (dictionary.lookup(word) != null) return word
@@ -94,14 +200,15 @@ class OcrEngine @Inject constructor(
                 return stripped
             }
         }
-
         return word
     }
 
+    // ============================================================
+    // 单词有效性检查
+    // ============================================================
+
     private fun isValidWord(text: String): Boolean {
         if (text.any { it in phoneticChars }) return false
-
-        // Reject tokens that have no letters at all (pure symbols like □)
         if (text.none { it.isLetter() }) return false
 
         var cleaned = text.trim { c ->
