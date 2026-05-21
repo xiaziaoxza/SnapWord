@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,12 +43,12 @@ fun ReviewScreen(
     viewModel: ReviewViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("复习") },
+                title = { Text("艾宾浩斯复习") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
@@ -62,7 +63,6 @@ fun ReviewScreen(
         }
     ) { padding ->
         if (state.completed) {
-            // Completion screen
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
@@ -93,13 +93,9 @@ fun ReviewScreen(
             val currentWord = state.words[state.currentIndex]
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Progress
                 LinearProgressIndicator(
                     progress = { state.reviewedCount.toFloat() / state.totalCount },
                     modifier = Modifier.fillMaxWidth()
@@ -112,7 +108,6 @@ fun ReviewScreen(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Flash card
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,7 +123,6 @@ fun ReviewScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (state.isFlipped) {
-                            // Back: show translation
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.padding(24.dp)
@@ -146,7 +140,6 @@ fun ReviewScreen(
                                 )
                             }
                         } else {
-                            // Front: show word only
                             Text(
                                 text = currentWord.word,
                                 style = MaterialTheme.typography.displaySmall,
@@ -158,20 +151,19 @@ fun ReviewScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    "点击卡片翻转",
+                    "点击卡片翻转 · 艾宾浩斯记忆曲线",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Feedback buttons
                 if (state.isFlipped) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        ReviewFeedback.entries.forEach { feedback ->
+                        ReviewFeedback.entries.forEach { feedback: ReviewFeedback ->
                             Button(
                                 onClick = { viewModel.recordFeedback(feedback) },
                                 modifier = Modifier.weight(1f),

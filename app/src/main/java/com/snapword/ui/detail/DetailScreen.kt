@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,7 +44,7 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
     val snackbarHost = remember { SnackbarHostState() }
 
     LaunchedEffect(word) {
@@ -84,7 +85,6 @@ fun DetailScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Word
             Text(
                 text = state.word,
                 style = MaterialTheme.typography.displaySmall,
@@ -93,7 +93,6 @@ fun DetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Translation card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -117,7 +116,6 @@ fun DetailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // TTS button
             Button(
                 onClick = { viewModel.speak() },
                 modifier = Modifier.size(80.dp),
@@ -137,7 +135,6 @@ fun DetailScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Add to vocab
             Button(
                 onClick = { viewModel.saveToVocab() },
                 modifier = Modifier.fillMaxWidth(),

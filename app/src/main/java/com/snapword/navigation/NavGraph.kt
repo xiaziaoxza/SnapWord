@@ -84,7 +84,7 @@ fun NavGraph() {
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
-                    onWordsReady = { words ->
+                    onWordsReady = { words: List<String> ->
                         navController.navigate(Routes.result(words))
                     }
                 )
@@ -98,7 +98,7 @@ fun NavGraph() {
                 val words = remember(encoded) { Routes.decodeWords(encoded) }
                 ResultScreen(
                     words = words,
-                    onWordClick = { word ->
+                    onWordClick = { word: String ->
                         navController.navigate(Routes.detail(word))
                     },
                     onBack = { navController.popBackStack() }
@@ -120,7 +120,7 @@ fun NavGraph() {
             composable(Routes.VOCAB) {
                 VocabScreen(
                     onReviewClick = { navController.navigate(Routes.REVIEW) },
-                    onWordClick = { word ->
+                    onWordClick = { word: String ->
                         navController.navigate(Routes.detail(word))
                     }
                 )
@@ -144,12 +144,11 @@ private fun BottomNavBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Only show bottom bar on main tabs
     val mainRoutes = bottomNavItems.map { it.route }.toSet()
     if (currentRoute !in mainRoutes) return
 
     NavigationBar {
-        bottomNavItems.forEach { item ->
+        bottomNavItems.forEach { item: BottomNavItem ->
             NavigationBarItem(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },

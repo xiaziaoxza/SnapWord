@@ -7,7 +7,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +21,7 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,18 +45,19 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onWordsReady: (List<String>) -> Unit
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { success ->
+    ) { success: Boolean ->
         if (success && tempPhotoUri != null) {
             val inputStream = context.contentResolver.openInputStream(tempPhotoUri!!)
             val bitmap = BitmapFactory.decodeStream(inputStream)
@@ -66,9 +68,9 @@ fun HomeScreen(
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            val inputStream = context.contentResolver.openInputStream(it)
+    ) { uri: Uri? ->
+        uri?.let { u ->
+            val inputStream = context.contentResolver.openInputStream(u)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
             bitmap?.let { bm -> viewModel.processImage(bm) }
@@ -77,7 +79,7 @@ fun HomeScreen(
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
+    ) { granted: Boolean ->
         if (granted) {
             val file = File(context.cacheDir, "photo_${System.currentTimeMillis()}.jpg")
             tempPhotoUri = FileProvider.getUriForFile(
@@ -88,8 +90,9 @@ fun HomeScreen(
     }
 
     // Navigate when words are recognized
-    state.recognizedWords?.let { words ->
-        onWordsReady(words)
+    val recognizedWords = state.recognizedWords
+    if (recognizedWords != null) {
+        onWordsReady(recognizedWords)
         viewModel.clearResult()
     }
 
@@ -122,7 +125,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "词典收录 ${4728} 个中高考词汇，离线可用",
+                text = "词典收录 4728 个中高考词汇，离线可用",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

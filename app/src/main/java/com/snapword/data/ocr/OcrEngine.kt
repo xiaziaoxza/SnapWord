@@ -15,11 +15,15 @@ class OcrEngine @Inject constructor() {
     suspend fun recognize(bitmap: Bitmap): List<String> {
         val image = InputImage.fromBitmap(bitmap, 0)
         val result = recognizer.process(image)
-        return result.textBlocks
-            .flatMap { block -> block.lines.map { it.text.trim() } }
-            .filter { it.length in 2..20 }
-            .filter { it.matches(Regex("^[a-zA-Z]+$")) }
-            .distinct()
-            .take(50)
+        val words = mutableListOf<String>()
+        for (block in result.getTextBlocks()) {
+            for (line in block.getLines()) {
+                val text = line.getText().trim()
+                if (text.length in 2..20 && text.matches(Regex("^[a-zA-Z]+$"))) {
+                    words.add(text)
+                }
+            }
+        }
+        return words.distinct().take(50)
     }
 }

@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.snapword.util.ShareUtil
+import com.snapword.data.local.WordEntity
 import com.snapword.ui.components.WordCard
+import com.snapword.util.ShareUtil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +38,7 @@ fun VocabScreen(
     onReviewClick: () -> Unit,
     onWordClick: (String) -> Unit
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
@@ -83,10 +83,11 @@ fun VocabScreen(
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.words, key = { it.id }) { word ->
-                    SwipeableWordItem(
-                        word = word,
-                        isSelected = word.id in state.selectedIds,
+                items(state.words, key = { it.id }) { word: WordEntity ->
+                    WordCard(
+                        word = word.word,
+                        translation = word.translation,
+                        mastered = word.mastered,
                         onClick = {
                             if (state.selectedIds.isNotEmpty()) {
                                 viewModel.toggleSelection(word.id)
@@ -94,32 +95,10 @@ fun VocabScreen(
                                 onWordClick(word.word)
                             }
                         },
-                        onLongClick = { viewModel.toggleSelection(word.id) },
-                        onDelete = { viewModel.deleteWord(word.id) },
-                        onMastered = { viewModel.markMastered(word.id) }
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun SwipeableWordItem(
-    word: com.snapword.data.local.WordEntity,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit,
-    onDelete: () -> Unit,
-    onMastered: () -> Unit
-) {
-    WordCard(
-        word = word.word,
-        translation = word.translation,
-        mastered = word.mastered,
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    )
-    // Simplified: delete and master actions via buttons inside or swipe
-    // For now, use the card's long-click for selection
 }

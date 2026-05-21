@@ -19,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.snapword.ui.components.WordCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +35,7 @@ fun ResultScreen(
     onWordClick: (String) -> Unit,
     onBack: () -> Unit
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
 
     // Initialize on first load
     if (state.words.isEmpty() && words.isNotEmpty()) {
@@ -58,26 +61,22 @@ fun ResultScreen(
     ) { padding ->
         if (state.words.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = androidx.compose.ui.Alignment.Center
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
             ) {
                 Text("没有识别到单词")
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                itemsIndexed(state.words) { _, word ->
+                itemsIndexed(state.words) { index: Int, word: String ->
                     val translation = state.translations[word]
                     val isSaved = word in state.savedWordIds
 
-                    com.snapword.ui.components.WordCard(
+                    WordCard(
                         word = word,
                         translation = translation,
                         mastered = isSaved,

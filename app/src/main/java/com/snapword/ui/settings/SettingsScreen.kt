@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -20,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
@@ -53,7 +53,6 @@ fun SettingsScreen(
                 .padding(padding)
                 .padding(24.dp)
         ) {
-            // TTS Speech Rate
             Text("TTS 语速", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -77,7 +76,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Recognition Language
             Text("识别语言", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -99,7 +97,7 @@ fun SettingsScreen(
                     expanded = langExpanded,
                     onDismissRequest = { langExpanded = false }
                 ) {
-                    langOptions.forEach { (code, name) ->
+                    langOptions.forEach { (code: String, name: String) ->
                         DropdownMenuItem(
                             text = { Text(name) },
                             onClick = {
@@ -113,14 +111,13 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // App info
             Text(
                 text = "拍词学单词 v1.0",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "内置词典 4728 词 · 离线可用",
+                text = "内置词典 4728 词 · 离线可用 · 艾宾浩斯记忆曲线",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

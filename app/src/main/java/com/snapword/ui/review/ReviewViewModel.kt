@@ -13,9 +13,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// Ebbinghaus forgetting curve intervals (in hours)
+// Stage 0: 20min, Stage 1: 1h, Stage 2: 8h, Stage 3: 1d,
+// Stage 4: 2d, Stage 5: 6d, Stage 6: 14d, Stage 7: 30d
+private val EBBINGHAUS_INTERVALS = longArrayOf(
+    1L / 3,  // 20 minutes
+    1,       // 1 hour
+    8,       // 8 hours
+    24,      // 1 day
+    48,      // 2 days
+    144,     // 6 days
+    336,     // 14 days
+    720      // 30 days
+)
+
 data class ReviewUiState(
     val words: List<WordEntity> = emptyList(),
     val currentIndex: Int = 0,
+    val currentStage: Int = 0,
     val isFlipped: Boolean = false,
     val completed: Boolean = false,
     val reviewedCount: Int = 0,
@@ -53,11 +68,21 @@ class ReviewViewModel @Inject constructor(
         val word = current.words.getOrNull(current.currentIndex) ?: return
 
         viewModelScope.launch {
-            val intervalHours = when (feedback) {
-                ReviewFeedback.REMEMBERED -> 24 * 3  // 3 days
-                ReviewFeedback.FUZZY -> 12            // 12 hours
-                ReviewFeedback.FORGOT -> 2             // 2 hours
+            // Ebbinghaus: advance or regress stage based on feedback
+            var newStage = current.currentStage
+            when (feedback) {
+                ReviewFeedback.REMEMBERED -> {
+                    newStage = (current.currentStage + 1).coerceIn(0, EBBINGHAUS_INTERVALS.size - 1)
+                }
+                ReviewFeedback.FUZZY -> {
+                    newStage = (current.currentStage).coerceIn(0, EBBINGHAUS_INTERVALS.size - 1)
+                }
+                ReviewFeedback.FORGOT -> {
+                    newStage = 0 // reset to beginning
+                }
             }
+
+            val intervalHours = EBBINGHAUS_INTERVALS[newStage].toInt()
 
             repository.addReview(
                 ReviewRecordEntity(
@@ -77,6 +102,7 @@ class ReviewViewModel @Inject constructor(
             } else {
                 _state.value = current.copy(
                     currentIndex = nextIndex,
+                    currentStage = 0,  // reset stage for new word
                     isFlipped = false,
                     reviewedCount = nextIndex
                 )
