@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.snapword.data.ocr.OcrEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class HomeUiState(
@@ -29,7 +31,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, error = null)
             try {
-                val words = ocrEngine.recognize(bitmap)
+                val words = withContext(Dispatchers.IO) { ocrEngine.recognize(bitmap) }
                 if (words.isEmpty()) {
                     _state.value = _state.value.copy(
                         isProcessing = false,
