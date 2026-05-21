@@ -121,8 +121,8 @@ class OcrEngine @Inject constructor(
         val tiles = mutableListOf<Bitmap>()
         for (r in 0 until rows) {
             for (c in 0 until cols) {
-                val x = (c * tileW - if (c > 0) tileW * overlap else 0).toInt().coerceAtLeast(0)
-                val y = (r * tileH - if (r > 0) tileH * overlap else 0).toInt().coerceAtLeast(0)
+                val x = (c * tileW - if (c > 0) tileW * overlap else 0f).toInt().coerceAtLeast(0)
+                val y = (r * tileH - if (r > 0) tileH * overlap else 0f).toInt().coerceAtLeast(0)
                 val rw = ((tileW * (1 + overlap * 2)).toInt()).coerceAtMost(w - x)
                 val rh = ((tileH * (1 + overlap * 2)).toInt()).coerceAtMost(h - y)
                 if (rw > 100 && rh > 100) {
