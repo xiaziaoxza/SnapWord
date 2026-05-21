@@ -42,13 +42,13 @@ class OcrEngine @Inject constructor() {
 
         // Remove duplicates, preserving order
         val seen = mutableSetOf<String>()
-        val result = mutableListOf<String>()
+        val filtered = mutableListOf<String>()
         for (word in words) {
             if (seen.add(word.lowercase())) {
-                result.add(word)
+                filtered.add(word)
             }
         }
-        return result.take(50)
+        return filtered.take(50)
     }
 
     private fun isValidWord(text: String): Boolean {
