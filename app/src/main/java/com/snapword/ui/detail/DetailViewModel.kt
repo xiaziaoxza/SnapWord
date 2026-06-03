@@ -42,7 +42,9 @@ class DetailViewModel @Inject constructor(
     }
 
     fun speak() {
-        audioManager.speak(_state.value.word)
+        viewModelScope.launch {
+            audioManager.speak(_state.value.word)
+        }
     }
 
     fun saveToVocab() {
