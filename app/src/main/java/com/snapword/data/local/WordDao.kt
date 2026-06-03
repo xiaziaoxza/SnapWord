@@ -32,4 +32,21 @@ interface WordDao {
 
     @Query("SELECT * FROM word_entries WHERE word IN (:words)")
     suspend fun findExisting(words: List<String>): List<WordEntity>
+
+    /** All non-mastered words, ordered by forgettingDays descending (most forgotten first) */
+    @Query("SELECT * FROM word_entries WHERE mastered = 0 ORDER BY forgettingDays DESC")
+    suspend fun getReviewCandidates(): List<WordEntity>
+
+    /** Count words in a forgetting-days range */
+    @Query("SELECT COUNT(*) FROM word_entries WHERE mastered = 0 AND forgettingDays BETWEEN :minDays AND :maxDays")
+    suspend fun countByForgettingDays(minDays: Int, maxDays: Int): Int
+
+    /** Increment forgettingDays for words not reviewed in the last 24 hours */
+    @Query("""
+        UPDATE word_entries
+        SET forgettingDays = forgettingDays + 1
+        WHERE mastered = 0
+          AND (lastReviewedAt IS NULL OR lastReviewedAt < :cutoff)
+    """)
+    suspend fun incrementForgettingDays(cutoff: Long): Int
 }

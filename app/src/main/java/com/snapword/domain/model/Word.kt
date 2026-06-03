@@ -9,14 +9,11 @@ data class Word(
     val phonetic: String? = null,
     val exampleSentence: String? = null,
     val mastered: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val lastReviewedAt: Long? = null,
+    val forgettingDays: Int = 0,
+    val reviewCount: Int = 0
 )
-
-enum class ReviewFeedback(val label: String) {
-    REMEMBERED("记住了"),
-    FUZZY("模糊"),
-    FORGOT("没记住")
-}
 
 fun WordEntity.toDomain(): Word = Word(
     id = id,
@@ -25,7 +22,10 @@ fun WordEntity.toDomain(): Word = Word(
     phonetic = phonetic,
     exampleSentence = exampleSentence,
     mastered = mastered,
-    createdAt = createdAt
+    createdAt = createdAt,
+    lastReviewedAt = lastReviewedAt,
+    forgettingDays = forgettingDays,
+    reviewCount = reviewCount
 )
 
 fun Word.toEntity(): WordEntity = WordEntity(
@@ -35,5 +35,8 @@ fun Word.toEntity(): WordEntity = WordEntity(
     phonetic = phonetic,
     exampleSentence = exampleSentence,
     createdAt = createdAt,
-    mastered = mastered
+    mastered = mastered,
+    lastReviewedAt = lastReviewedAt,
+    forgettingDays = forgettingDays,
+    reviewCount = reviewCount
 )

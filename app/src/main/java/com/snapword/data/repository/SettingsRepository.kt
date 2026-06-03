@@ -22,6 +22,8 @@ class SettingsRepository @Inject constructor(
     companion object {
         val SPEECH_RATE = floatPreferencesKey("speech_rate")
         val RECOGNITION_LANG = stringPreferencesKey("recognition_lang")
+        val REVIEW_TOTAL_COUNT = stringPreferencesKey("review_total_count")
+        val REVIEW_BUCKETS = stringPreferencesKey("review_buckets")
     }
 
     val speechRate: Flow<Float> = context.dataStore.data.map { prefs ->
@@ -32,11 +34,29 @@ class SettingsRepository @Inject constructor(
         prefs[RECOGNITION_LANG] ?: "en"
     }
 
+    /** Total words per review session, default 20 */
+    val reviewTotalCount: Flow<Int> = context.dataStore.data.map { prefs ->
+        (prefs[REVIEW_TOTAL_COUNT] ?: "20").toIntOrNull() ?: 20
+    }
+
+    /** Bucket config: "1:5,3:5,7:5,14:3,30:2" → pairs of (maxDays, count) */
+    val reviewBuckets: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[REVIEW_BUCKETS] ?: "1:5,3:5,7:5,14:3,30:2"
+    }
+
     suspend fun setSpeechRate(rate: Float) {
         context.dataStore.edit { it[SPEECH_RATE] = rate.coerceIn(0.5f, 2.0f) }
     }
 
     suspend fun setRecognitionLang(lang: String) {
         context.dataStore.edit { it[RECOGNITION_LANG] = lang }
+    }
+
+    suspend fun setReviewTotalCount(count: Int) {
+        context.dataStore.edit { it[REVIEW_TOTAL_COUNT] = count.toString() }
+    }
+
+    suspend fun setReviewBuckets(buckets: String) {
+        context.dataStore.edit { it[REVIEW_BUCKETS] = buckets }
     }
 }

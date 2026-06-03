@@ -11,5 +11,8 @@ data class WordEntity(
     val phonetic: String? = null,
     val exampleSentence: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
-    val mastered: Boolean = false
+    val mastered: Boolean = false,
+    val lastReviewedAt: Long? = null,
+    val forgettingDays: Int = 0,
+    val reviewCount: Int = 0
 )

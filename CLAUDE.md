@@ -9,7 +9,14 @@
 
 ## 项目概述
 
-拍词学单词 — Kotlin + Jetpack Compose 安卓应用。拍照 Google ML Kit Text Recognition v2 → DeepSeek 翻译 → TTS 朗读 → 生词本 → 间隔复习。
+拍词学单词 — Kotlin + Jetpack Compose 安卓应用。拍照 Google ML Kit Text Recognition v2 → 查词翻译 → TTS 朗读 → 生词本 → Ebbinghaus 间隔复习。
+
+## 复习系统
+
+艾宾浩斯遗忘曲线驱动。每单词有 `forgettingDays`（遗忘天数），系统日历每日递增。
+复习时按遗忘概率 `1 - e^(-forgettingDays/7)` 加权抽取，遗忘越久越容易出现。
+用户打字输入中文翻译，匹配任意关键词算正确。正确 → forgettingDays 归零；跳过/答错 → +1。
+复习配置可调：总词数 + 各天数段配额（如 "1:5,3:5,7:5,14:3,30:2"）。
 
 ## OCR 引擎
 
