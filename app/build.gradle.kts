@@ -62,8 +62,8 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
 
-    // PaddleOCR via ncnn (PP-OCRv5)
-    implementation("com.github.equationl.paddleocr4android:ncnnandroidppocr:v1.3.0")
+    // Google ML Kit Text Recognition v2 — 离线，拉丁字母优化
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Room
     val roomVersion = "2.6.1"
