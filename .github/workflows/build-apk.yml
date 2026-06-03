@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -33,3 +35,12 @@ jobs:
 
       - name: Run lint
         run: gradle lint
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: "SnapWord ${{ github.run_number }}"
+          tag_name: "v${{ github.run_number }}"
+          files: app/build/outputs/apk/debug/app-debug.apk
+          body: "自动构建 · 拍词学单词\n\n内置 4651 词美式发音 · 艾宾浩斯复习 · ML Kit OCR"
