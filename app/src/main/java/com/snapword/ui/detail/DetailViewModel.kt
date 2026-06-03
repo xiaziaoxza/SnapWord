@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.snapword.data.local.WordEntity
 import com.snapword.data.repository.WordRepository
-import com.snapword.util.TtsManager
+import com.snapword.util.AudioManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +22,7 @@ data class DetailUiState(
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val repository: WordRepository,
-    private val ttsManager: TtsManager
+    private val audioManager: AudioManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DetailUiState())
@@ -42,7 +42,7 @@ class DetailViewModel @Inject constructor(
     }
 
     fun speak() {
-        ttsManager.speak(_state.value.word)
+        audioManager.speak(_state.value.word)
     }
 
     fun saveToVocab() {

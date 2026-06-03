@@ -30,4 +30,10 @@ API: `TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)` → Text
 ./gradlew lint             # 代码检查
 ```
 
+## 音频
+
+内置 ~4700 词的美式发音 OGG 文件放在 `app/src/main/assets/audio/`，APK 增量约 33MB。
+`AudioManager` 优先播放资产音频，缺失时回退系统 TTS。
+词形变化词（如 removed）通过 `audio/index.json` 映射到原形音频。
+
 CI 在 `.github/workflows/build-apk.yml`，每次 push 自动编译 APK 并上传 artifact。

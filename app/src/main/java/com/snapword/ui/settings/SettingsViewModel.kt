@@ -3,7 +3,7 @@ package com.snapword.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.snapword.data.repository.SettingsRepository
-import com.snapword.util.TtsManager
+import com.snapword.util.AudioManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ data class SettingsUiState(
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepo: SettingsRepository,
-    private val ttsManager: TtsManager
+    private val audioManager: AudioManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -41,7 +41,7 @@ class SettingsViewModel @Inject constructor(
     fun setSpeechRate(rate: Float) {
         viewModelScope.launch {
             settingsRepo.setSpeechRate(rate)
-            ttsManager.setRate(rate)
+            audioManager.setRate(rate)
         }
     }
 

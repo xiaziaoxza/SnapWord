@@ -24,6 +24,7 @@ data class WordListMeta(
     val wordCount: Int,
     val size: Long,
     val url: String?,
+    val audioUrl: String? = null,
     val builtin: Boolean,
     var isDownloaded: Boolean = false,
     var downloadProgress: Float = 0f
@@ -74,6 +75,7 @@ class WordListManager @Inject constructor(
                             wordCount = obj.getInt("wordCount"),
                             size = obj.getLong("size"),
                             url = obj.optString("url", null)?.ifBlank { null },
+                            audioUrl = obj.optString("audioUrl", null)?.ifBlank { null },
                             builtin = obj.optBoolean("builtin", false),
                             isDownloaded = id in _state.value.downloadedIds || obj.optBoolean("builtin", false)
                         )
@@ -86,7 +88,7 @@ class WordListManager @Inject constructor(
         }
     }
 
-    /** Download a word list JSON file */
+    /** Download a word list JSON file + optional audio pack */
     suspend fun download(list: WordListMeta) {
         if (list.url == null || list.builtin) return
 
@@ -99,6 +101,16 @@ class WordListManager @Inject constructor(
                 val json = downloadText(list.url)
                 val targetFile = File(wordListsDir, "${list.id}.json")
                 targetFile.writeText(json, Charsets.UTF_8)
+
+                // Download audio pack if available
+                if (list.audioUrl != null) {
+                    try {
+                        downloadAndExtractAudio(list.audioUrl)
+                    } catch (_: Exception) {
+                        // Audio download failed — TTS fallback still works
+                    }
+                }
+
                 refreshDownloadedState()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -106,6 +118,36 @@ class WordListManager @Inject constructor(
                 downloading.remove(list.id)
                 _state.value = _state.value.copy(downloading = downloading)
             }
+        }
+    }
+
+    private fun downloadAndExtractAudio(audioUrl: String) {
+        val audioDir = File(context.filesDir, "audio")
+        audioDir.mkdirs()
+        val zipFile = File(audioDir, "_temp.zip")
+        try {
+            val url = URL(audioUrl)
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 15000
+            conn.readTimeout = 120000
+            conn.inputStream.use { input ->
+                zipFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            // Extract zip
+            java.util.zip.ZipFile(zipFile).use { zip ->
+                val entries = zip.entries()
+                while (entries.hasMoreElements()) {
+                    val entry = entries.nextElement()
+                    if (!entry.isDirectory && (entry.name.endsWith(".mp3") || entry.name.endsWith(".ogg"))) {
+                        val outFile = File(audioDir, File(entry.name).name)
+                        zip.getInputStream(entry).use { it.copyTo(outFile.outputStream()) }
+                    }
+                }
+            }
+        } finally {
+            zipFile.delete()
         }
     }
 
