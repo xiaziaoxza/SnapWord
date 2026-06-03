@@ -16,7 +16,7 @@
     "wordCount": 2239,
     "file": "cet4.json",
     "size": 185210,
-    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/cet4.json",
+    "url": "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/cet4.json",
     "builtin": false
   },
   {
@@ -26,7 +26,7 @@
     "wordCount": 5976,
     "file": "cet6.json",
     "size": 488779,
-    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/cet6.json",
+    "url": "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/cet6.json",
     "builtin": false
   },
   {
@@ -36,7 +36,7 @@
     "wordCount": 5585,
     "file": "kaoyan.json",
     "size": 458732,
-    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/kaoyan.json",
+    "url": "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/kaoyan.json",
     "builtin": false
   },
   {
@@ -46,7 +46,7 @@
     "wordCount": 5327,
     "file": "toefl.json",
     "size": 376412,
-    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/toefl.json",
+    "url": "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/toefl.json",
     "builtin": false
   },
   {
@@ -56,7 +56,7 @@
     "wordCount": 3716,
     "file": "ielts.json",
     "size": 284257,
-    "url": "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/ielts.json",
+    "url": "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/ielts.json",
     "builtin": false
   }
 ]

@@ -201,6 +201,6 @@ class WordListManager @Inject constructor(
 
     companion object {
         const val MANIFEST_URL =
-            "https://raw.githubusercontent.com/hiokanbd/SnapWord/main/wordlists/wordlist_manifest.json"
+            "https://raw.githubusercontent.com/xiaziaoxza/SnapWord/main/wordlists/wordlist_manifest.json"
     }
 }
